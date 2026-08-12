@@ -1,0 +1,46 @@
+/* ==========================================================
+   COMPONENT : TOOLBAR
+   ========================================================== */
+
+.ui-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+
+    margin-bottom: var(--space-lg);
+}
+
+.ui-toolbar__start,
+.ui-toolbar__end {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.ui-toolbar__end {
+    margin-left: auto;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 576px) {
+
+    .ui-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ui-toolbar__start,
+    .ui-toolbar__end {
+        width: 100%;
+    }
+
+    .ui-toolbar__end {
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+}

@@ -1,0 +1,31 @@
+/* ==========================================================
+   FOUNDATION
+========================================================== */
+
+@import "foundation/reset.css";
+@import "foundation/tokens.css";
+@import "foundation/typography.css";
+@import "foundation/utilities.css";
+
+/* ==========================================================
+   LAYOUT
+========================================================== */
+
+@import "layout/navbar.css";
+@import "layout/sidebar.css";
+@import "layout/footer.css";
+@import "layout/page.css";
+
+/* ==========================================================
+   COMPONENTS
+========================================================== */
+
+@import "components/card.css";
+@import "components/button.css";
+@import "components/form.css";
+@import "components/table.css";
+@import "components/modal.css";
+@import "components/badge.css";
+@import "components/alert.css";
+@import "components/widget.css";
+@import "components/empty.css";

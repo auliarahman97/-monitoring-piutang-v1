@@ -1,0 +1,15 @@
+/* ==========================================================
+   LAYOUT : FOOTER
+   ========================================================== */
+
+.main-footer{
+
+    background:var(--bg-card);
+
+    border-top:1px solid var(--border-color);
+
+    color:var(--text-secondary);
+
+    font-size:.875rem;
+
+}

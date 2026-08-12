@@ -1,0 +1,50 @@
+/* ==========================================================
+   COMPONENT : FILTER
+   ========================================================== */
+
+.ui-filter {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-md);
+
+    margin-bottom: var(--space-lg);
+
+    flex-wrap: wrap;
+}
+
+.ui-filter__group {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.ui-filter__actions {
+    display: flex;
+    gap: var(--space-sm);
+
+    margin-left: auto;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 576px) {
+
+    .ui-filter {
+        align-items: stretch;
+    }
+
+    .ui-filter__group,
+    .ui-filter__actions {
+        width: 100%;
+    }
+
+    .ui-filter__actions {
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+}

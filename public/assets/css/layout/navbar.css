@@ -1,0 +1,435 @@
+/* ==========================================================
+   LAYOUT : NAVBAR
+   ========================================================== */
+
+
+/* ==========================================================
+   USER MENU TOGGLE
+   ========================================================== */
+
+.user-menu-toggle {
+    display: flex;
+    align-items: center;
+
+    gap: 0.55rem;
+
+    padding: 0.35rem 0.6rem !important;
+
+    border-radius: 0.5rem;
+
+    transition:
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.user-menu-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+
+/* ==========================================================
+   USER AVATAR
+   ========================================================== */
+
+.user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 40px;
+    height: 40px;
+
+    border-radius: 50%;
+
+    background-color: var(--color-primary, #007bff);
+    color: var(--text-contrast, #ffffff);
+
+    font-size: 0.875rem;
+    font-weight: 700;
+
+    letter-spacing: 0.02em;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.12);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.user-menu-toggle:hover .user-avatar {
+    transform: scale(1.04);
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.16);
+}
+
+
+/* ==========================================================
+   USER INFO - NAVBAR
+   ========================================================== */
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    min-width: 0;
+
+    line-height: 1.2;
+
+    text-align: left;
+}
+
+.user-info .username {
+    display: block;
+
+    color: #212529;
+
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.user-info .role {
+    display: block;
+
+    margin-top: 2px;
+
+    color: #6c757d;
+
+    font-size: 0.7rem;
+    font-weight: 500;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+
+/* ==========================================================
+   USER DROPDOWN
+   ========================================================== */
+
+/*
+ * Penting:
+ * Jangan biarkan background mengikuti inheritance/default
+ * AdminLTE. Dropdown harus menjadi panel solid.
+ */
+
+.user-dropdown {
+    position: absolute;
+
+    z-index: 1050;
+
+    width: 300px;
+
+    padding: 0 !important;
+
+    overflow: hidden;
+
+    background-color: #ffffff !important;
+
+    border: 1px solid #e5e7eb !important;
+
+    border-radius: 0.75rem !important;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+
+/*
+ * Pastikan seluruh dropdown juga solid.
+ */
+
+.user-dropdown,
+.user-dropdown *,
+.user-dropdown::before,
+.user-dropdown::after {
+    box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   DROPDOWN HEADER
+   ========================================================== */
+
+.user-dropdown-header {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 1.35rem 1.25rem 1.2rem;
+
+    background-color: var(--color-primary, #007bff) !important;
+
+    color: #ffffff !important;
+
+    text-align: center;
+
+    overflow: hidden;
+}
+
+
+/*
+ * Dekorasi ringan.
+ */
+
+.user-dropdown-header::before {
+    content: "";
+
+    position: absolute;
+
+    top: -45px;
+    right: -35px;
+
+    width: 120px;
+    height: 120px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    pointer-events: none;
+}
+
+.user-dropdown-header::after {
+    content: "";
+
+    position: absolute;
+
+    bottom: -55px;
+    left: -40px;
+
+    width: 120px;
+    height: 120px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.06);
+
+    pointer-events: none;
+}
+
+
+/* ==========================================================
+   DROPDOWN AVATAR
+   ========================================================== */
+
+.user-dropdown-header .user-avatar {
+    position: relative;
+
+    z-index: 2;
+
+    width: 68px;
+    height: 68px;
+
+    margin: 0 auto 0.75rem;
+
+    background-color: #ffffff !important;
+
+    color: var(--color-primary, #007bff) !important;
+
+    border: 3px solid rgba(255, 255, 255, 0.55);
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.16);
+
+    font-size: 1.25rem;
+
+    transform: none;
+}
+
+.user-dropdown-header .user-avatar:hover {
+    transform: none;
+}
+
+
+/* ==========================================================
+   DROPDOWN USER NAME
+   ========================================================== */
+
+.user-dropdown-header h6 {
+    position: relative;
+
+    z-index: 2;
+
+    margin: 0;
+
+    color: #ffffff !important;
+
+    font-size: 1rem;
+    font-weight: 700;
+
+    line-height: 1.4;
+}
+
+.user-dropdown-header small {
+    position: relative;
+
+    z-index: 2;
+
+    display: block;
+
+    margin-top: 2px;
+
+    color: rgba(255, 255, 255, 0.85) !important;
+
+    font-size: 0.78rem;
+}
+
+
+/* ==========================================================
+   EMAIL
+   ========================================================== */
+
+.user-dropdown .user-email {
+    display: flex;
+    align-items: center;
+
+    min-height: 52px;
+
+    padding: 0.8rem 1.1rem;
+
+    background-color: #ffffff !important;
+
+    border-top: 1px solid #eeeeee;
+
+    border-bottom: 1px solid #eeeeee;
+
+    color: #495057;
+
+    font-size: 0.875rem;
+}
+
+.user-dropdown .user-email i {
+    width: 24px;
+
+    margin-right: 0.5rem;
+
+    color: var(--color-primary, #007bff);
+
+    text-align: center;
+}
+
+
+/* ==========================================================
+   DROPDOWN ITEMS
+   ========================================================== */
+
+.user-dropdown .dropdown-item {
+    display: flex;
+    align-items: center;
+
+    min-height: 46px;
+
+    padding: 0.7rem 1.1rem;
+
+    background-color: #ffffff;
+
+    color: #343a40;
+
+    font-size: 0.875rem;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        padding-left 0.2s ease;
+}
+
+.user-dropdown .dropdown-item:hover,
+.user-dropdown .dropdown-item:focus {
+    background-color: #f5f7fa;
+
+    color: var(--color-primary, #007bff);
+
+    padding-left: 1.25rem;
+}
+
+.user-dropdown .dropdown-item i {
+    width: 24px;
+
+    margin-right: 0.5rem;
+
+    text-align: center;
+}
+
+
+/* ==========================================================
+   DROPDOWN FOOTER
+   ========================================================== */
+
+.user-dropdown .dropdown-footer {
+    padding: 0.85rem 1rem;
+
+    background-color: #fafafa !important;
+
+    border-top: 1px solid #eeeeee;
+}
+
+
+/* ==========================================================
+   LOGOUT BUTTON
+   ========================================================== */
+
+.user-dropdown .dropdown-footer .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    min-height: 40px;
+
+    border-radius: 0.5rem;
+
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.user-dropdown .dropdown-footer .btn:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-dropdown .dropdown-footer .btn i {
+    margin-right: 0.4rem;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 767.98px) {
+
+    .user-info {
+        display: none;
+    }
+
+    .user-dropdown {
+        width: min(
+            300px,
+            calc(100vw - 24px)
+        );
+    }
+
+}

@@ -1,0 +1,129 @@
+/* =========================================================
+ * COMPONENT : EMPTY
+ * ========================================================= */
+
+.ui-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    padding: calc(var(--space-xl) * 2) var(--space-lg);
+
+    text-align: center;
+}
+
+.ui-empty__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 5rem;
+    height: 5rem;
+
+    margin-bottom: var(--space-lg);
+
+    border-radius: 50%;
+
+    background: var(--bg-soft);
+
+    color: var(--color-secondary);
+
+    font-size: 2rem;
+}
+
+.ui-empty__title {
+    margin: 0 0 var(--space-sm);
+
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.4;
+
+    color: var(--color-dark);
+}
+
+.ui-empty__text {
+    max-width: 36rem;
+
+    margin: 0;
+
+    font-size: .9375rem;
+    line-height: 1.7;
+
+    color: var(--color-secondary);
+}
+
+.ui-empty__action {
+    margin-top: var(--space-lg);
+}
+
+/* =========================================================
+ * SIZE
+ * ========================================================= */
+
+.ui-empty--sm {
+    padding: var(--space-xl) var(--space-md);
+}
+
+.ui-empty--sm .ui-empty__icon {
+    width: 4rem;
+    height: 4rem;
+
+    font-size: 1.5rem;
+}
+
+.ui-empty--sm .ui-empty__title {
+    font-size: 1.125rem;
+}
+
+.ui-empty--sm .ui-empty__text {
+    font-size: .875rem;
+}
+
+.ui-empty--lg {
+    padding: calc(var(--space-xl) * 3) var(--space-xl);
+}
+
+.ui-empty--lg .ui-empty__icon {
+    width: 6rem;
+    height: 6rem;
+
+    font-size: 2.5rem;
+}
+
+.ui-empty--lg .ui-empty__title {
+    font-size: 1.5rem;
+}
+
+.ui-empty--lg .ui-empty__text {
+    font-size: 1rem;
+}
+
+/* =========================================================
+ * RESPONSIVE
+ * ========================================================= */
+
+@media (max-width: 576px) {
+
+    .ui-empty {
+        padding: var(--space-xl) var(--space-md);
+    }
+
+    .ui-empty__icon {
+        width: 4rem;
+        height: 4rem;
+
+        font-size: 1.5rem;
+    }
+
+    .ui-empty__title {
+        font-size: 1.125rem;
+    }
+
+    .ui-empty__text {
+        font-size: .875rem;
+    }
+
+}

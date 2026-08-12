@@ -1,0 +1,290 @@
+/* ==========================================================================
+   UI FRAMEWORK v1.0
+   Utilities
+   ========================================================================== */
+
+
+/* ==========================================================================
+   SHADOW
+   ========================================================================== */
+
+.ui-shadow-sm {
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.ui-shadow-md {
+    box-shadow: var(--shadow-md) !important;
+}
+
+.ui-shadow-lg {
+    box-shadow: var(--shadow-lg) !important;
+}
+
+
+/* ==========================================================================
+   BORDER RADIUS
+   ========================================================================== */
+
+.ui-rounded-sm {
+    border-radius: var(--radius-sm) !important;
+}
+
+.ui-rounded-md {
+    border-radius: var(--radius-md) !important;
+}
+
+.ui-rounded-lg {
+    border-radius: var(--radius-lg) !important;
+}
+
+.ui-rounded-xl {
+    border-radius: var(--radius-xl) !important;
+}
+
+
+/* ==========================================================================
+   BACKGROUND
+   ========================================================================== */
+
+.ui-bg-soft {
+    background-color: var(--bg-soft) !important;
+}
+
+
+/* ==========================================================================
+   BORDER
+   ========================================================================== */
+
+.ui-border-soft {
+    border: 1px solid var(--border-color) !important;
+}
+
+
+/* ==========================================================================
+   BORDER COLOR
+   ========================================================================== */
+
+.ui-border-primary {
+    border-color: var(--color-primary) !important;
+}
+
+.ui-border-success {
+    border-color: var(--color-success) !important;
+}
+
+.ui-border-warning {
+    border-color: var(--color-warning) !important;
+}
+
+.ui-border-danger {
+    border-color: var(--color-danger) !important;
+}
+
+.ui-border-info {
+    border-color: var(--color-info) !important;
+}
+
+
+/* ==========================================================================
+   TEXT COLOR
+   ========================================================================== */
+
+.ui-text-primary {
+    color: var(--color-primary) !important;
+}
+
+.ui-text-success {
+    color: var(--color-success) !important;
+}
+
+.ui-text-warning {
+    color: var(--color-warning) !important;
+}
+
+.ui-text-danger {
+    color: var(--color-danger) !important;
+}
+
+.ui-text-info {
+    color: var(--color-info) !important;
+}
+
+/* ==========================================================================
+   TEXT ALIGNMENT
+   ========================================================================== */
+
+.ui-text-left {
+    text-align: left !important;
+}
+
+.ui-text-center {
+    text-align: center !important;
+}
+
+.ui-text-right {
+    text-align: right !important;
+}
+
+
+/* ==========================================================================
+   BACKGROUND COLOR
+   ========================================================================== */
+
+.ui-bg-primary {
+    background-color: var(--color-primary) !important;
+    color: var(--color-primary-contrast) !important;
+}
+
+.ui-bg-success {
+    background-color: var(--color-success) !important;
+    color: var(--color-success-contrast) !important;
+}
+
+.ui-bg-warning {
+    background-color: var(--color-warning) !important;
+    color: var(--color-warning-contrast) !important;
+}
+
+.ui-bg-danger {
+    background-color: var(--color-danger) !important;
+    color: var(--color-danger-contrast) !important;
+}
+
+.ui-bg-info {
+    background-color: var(--color-info) !important;
+    color: var(--color-info-contrast) !important;
+}
+
+/* ==========================================================================
+   OUTLINE COLOR
+   ========================================================================== */
+
+.ui-outline-primary {
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+}
+
+.ui-outline-success {
+    border-color: var(--color-success) !important;
+    color: var(--color-success) !important;
+}
+
+.ui-outline-warning {
+    border-color: var(--color-warning) !important;
+    color: var(--color-warning) !important;
+}
+
+.ui-outline-danger {
+    border-color: var(--color-danger) !important;
+    color: var(--color-danger) !important;
+}
+
+.ui-outline-info {
+    border-color: var(--color-info) !important;
+    color: var(--color-info) !important;
+}
+
+/* ==========================================================================
+   FILLED COLOR
+   ========================================================================== */
+
+.ui-filled-primary {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary-contrast) !important;
+}
+
+.ui-filled-success {
+    background-color: var(--color-success) !important;
+    border-color: var(--color-success) !important;
+    color: var(--color-success-contrast) !important;
+}
+
+.ui-filled-warning {
+    background-color: var(--color-warning) !important;
+    border-color: var(--color-warning) !important;
+    color: var(--color-warning-contrast) !important;
+}
+
+.ui-filled-danger {
+    background-color: var(--color-danger) !important;
+    border-color: var(--color-danger) !important;
+    color: var(--color-danger-contrast) !important;
+}
+
+.ui-filled-info {
+    background-color: var(--color-info) !important;
+    border-color: var(--color-info) !important;
+    color: var(--color-info-contrast) !important;
+}
+
+
+/* ==========================================================================
+   INTERACTION
+   ========================================================================== */
+
+.ui-transition {
+    transition:
+        color var(--transition-normal),
+        background-color var(--transition-normal),
+        border-color var(--transition-normal),
+        box-shadow var(--transition-normal),
+        transform var(--transition-normal);
+}
+
+.ui-hover-lift {
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.ui-hover-lift:hover {
+    transform: translateY(-2px);
+}
+
+.ui-hover-shadow {
+    transition: box-shadow var(--transition-fast);
+}
+
+.ui-hover-shadow:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.ui-pointer {
+    cursor: pointer;
+}
+
+
+/* ==========================================================================
+   OVERFLOW
+   ========================================================================== */
+
+.ui-overflow-hidden {
+    overflow: hidden;
+}
+
+
+/* ==========================================================================
+   WHITE SPACE
+   ========================================================================== */
+
+.ui-nowrap {
+    white-space: nowrap !important;
+}
+
+.ui-wrap {
+    white-space: normal !important;
+}
+
+
+/* ==========================================================================
+   WIDTH
+   ========================================================================== */
+
+.ui-w-auto {
+    width: auto !important;
+}
+
+.ui-w-1 {
+    width: 1% !important;
+}

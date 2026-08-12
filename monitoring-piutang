@@ -1,0 +1,84 @@
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/Config/AuthGroups.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/Config/Database.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/Config/Email.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/Config/Routes.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'app/Controllers/BaseController.php', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'env', LF will be replaced by CRLF the next time Git touches it
+ .env.example                                       |    2 [32m+[m[31m-[m
+ README.md                                          |  474 [32m++[m[31m-[m
+ app/Config/Appsetting.php                          |   52 [31m-[m
+ app/Config/AuthGroups.php                          |    4 [32m+[m[31m-[m
+ app/Config/Database.php                            |    2 [32m+[m[31m-[m
+ app/Config/Email.php                               |    4 [32m+[m[31m-[m
+ app/Config/Routes.php                              |  559 [32m++[m[31m-[m
+ app/Config/Routes_backup.php                       |  141 [31m-[m
+ app/Controllers/Anggota.php                        |   85 [31m-[m
+ app/Controllers/Angsuran.php                       |  101 [31m-[m
+ app/Controllers/BaseController.php                 |  120 [32m+[m[31m-[m
+ app/Controllers/Dashboard.php                      |  126 [32m+[m[31m-[m
+ app/Controllers/Home.php                           |   51 [31m-[m
+ app/Controllers/JenisSimpanan.php                  |   39 [31m-[m
+ app/Controllers/Laporan.php                        | 3829 [32m++++++++++++[m[31m--------[m
+ app/Controllers/Pinjaman.php                       |  295 [31m--[m
+ app/Controllers/Simpanan.php                       |  134 [31m-[m
+ app/Controllers/User.php                           |  159 [32m+[m[31m-[m
+ .../2026-07-10-131002_CreateAnggotaTable.php       |   76 [31m-[m
+ .../2026-07-10-144826_CreateJenisSimpananTable.php |   54 [31m-[m
+ .../2026-07-10-164845_CreateSimpananTable.php      |   64 [31m-[m
+ .../2026-07-11-113508_CreatePinjamanTable.php      |   81 [31m-[m
+ .../2026-07-11-133701_CreateAngsuranTable.php      |   62 [31m-[m
+ app/Database/Seeds/JenisSimpananSeeder.php         |   40 [31m-[m
+ app/Helpers/badge_helper.php                       |   18 [31m-[m
+ app/Helpers/laporan_helper.php                     |  170 [31m-[m
+ app/Models/AnggotaModel.php                        |   69 [31m-[m
+ app/Models/AngsuranModel.php                       |  324 [31m--[m
+ app/Models/JenisSimpananModel.php                  |   59 [31m-[m
+ app/Models/PinjamanModel.php                       |  654 [31m----[m
+ app/Models/SimpananModel.php                       |  193 [31m-[m
+ app/Views/anggota/create.php                       |  101 [31m-[m
+ app/Views/anggota/edit.php                         |  138 [31m-[m
+ app/Views/anggota/index.php                        |   97 [31m-[m
+ app/Views/angsuran/_script.php                     |   91 [31m-[m
+ app/Views/angsuran/create.php                      |  210 [31m--[m
+ app/Views/angsuran/index.php                       |   86 [31m-[m
+ app/Views/dashboard/index.php                      | 1396 [32m++++++[m[31m-[m
+ app/Views/jenis_simpanan/create.php                |   65 [31m-[m
+ app/Views/jenis_simpanan/index.php                 |   49 [31m-[m
+ app/Views/laporan/_export_button.php               |   50 [31m-[m
+ app/Views/laporan/_filter_tanggal.php              |  157 [31m-[m
+ app/Views/laporan/angsuran.php                     |  141 [31m-[m
+ app/Views/laporan/excel/angsuran.php               |    0
+ app/Views/laporan/excel/pinjaman.php               |    0
+ app/Views/laporan/excel/simpanan.php               |  130 [31m-[m
+ app/Views/laporan/pdf/angsuran.php                 |    0
+ app/Views/laporan/pdf/pinjaman.php                 |    0
+ app/Views/laporan/pdf/simpanan.php                 |  130 [31m-[m
+ app/Views/laporan/pinjaman.php                     |  166 [31m-[m
+ app/Views/laporan/print/_footer.php                |   62 [31m-[m
+ app/Views/laporan/print/_header.php                |   88 [31m-[m
+ app/Views/laporan/print/_script.php                |   15 [31m-[m
+ app/Views/laporan/print/_style.php                 |  303 [31m--[m
+ app/Views/laporan/print/_summary.php               |   23 [31m-[m
+ app/Views/laporan/print/angsuran.php               |  117 [31m-[m
+ app/Views/laporan/print/pinjaman.php               |  130 [31m-[m
+ app/Views/laporan/print/simpanan.php               |   95 [31m-[m
+ app/Views/laporan/simpanan.php                     |  135 [31m-[m
+ app/Views/layouts/app.php                          |   80 [32m+[m[31m-[m
+ app/Views/partials/footer.php                      |    2 [32m+[m[31m-[m
+ app/Views/partials/navbar.php                      |  327 [32m+[m[31m-[m
+ app/Views/partials/sidebar.php                     |  314 [32m+[m[31m-[m
+ app/Views/partials/sidebar_backup.php              |  103 [31m-[m
+ app/Views/pinjaman/_script.php                     |  149 [31m-[m
+ app/Views/pinjaman/create.php                      |   45 [31m-[m
+ app/Views/pinjaman/edit.php                        |   45 [31m-[m
+ app/Views/pinjaman/form.php                        |   74 [31m-[m
+ app/Views/pinjaman/index.php                       |  183 [31m-[m
+ app/Views/simpanan/create.php                      |  198 [31m-[m
+ app/Views/simpanan/edit.php                        |  120 [31m-[m
+ app/Views/simpanan/index.php                       |  146 [31m-[m
+ app/Views/welcome_message.php                      |  331 [31m--[m
+ docs/PROJECT_GUIDELINE.md                          |  895 [32m+++[m[31m--[m
+ docs/database/koperasi_db.sql                      |  658 [31m----[m
+ env                                                |    2 [32m+[m[31m-[m
+ 76 files changed, 5843 insertions(+), 9845 deletions(-)

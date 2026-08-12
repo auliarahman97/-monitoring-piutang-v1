@@ -1,0 +1,92 @@
+/* ==========================================================
+   COMPONENT : MODAL
+   ========================================================== */
+
+.ui-modal {
+    background: var(--bg-card);
+
+    border: 0;
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-lg);
+
+    overflow: hidden;
+}
+
+
+/* ==========================================================
+   HEADER
+   ========================================================== */
+
+.ui-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: var(--space-md) var(--space-lg);
+
+    border-bottom: 1px solid var(--border-color);
+
+    background: var(--bg-card);
+}
+
+.ui-modal__title {
+    margin: 0;
+
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+
+    color: var(--text-primary);
+}
+
+
+/* ==========================================================
+   BODY
+   ========================================================== */
+
+.ui-modal__body {
+    padding: var(--space-lg);
+
+    color: var(--text-primary);
+}
+
+
+/* ==========================================================
+   FOOTER
+   ========================================================== */
+
+.ui-modal__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+
+    padding: var(--space-md) var(--space-lg);
+
+    border-top: 1px solid var(--border-color);
+
+    background: var(--bg-card);
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 576px) {
+
+    .ui-modal__header,
+    .ui-modal__footer {
+        padding: var(--space-md);
+    }
+
+    .ui-modal__body {
+        padding: var(--space-md);
+    }
+
+    .ui-modal__title {
+        font-size: 1rem;
+    }
+
+}

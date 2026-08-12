@@ -1,0 +1,122 @@
+/* =========================================================
+ * COMPONENT : ALERT
+ * ========================================================= */
+
+.ui-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+
+    width: 100%;
+
+    padding: var(--space-md);
+
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+
+    transition:
+        background-color var(--transition-normal),
+        border-color var(--transition-normal),
+        color var(--transition-normal);
+
+    line-height: 1.5;
+}
+
+.ui-alert i,
+.ui-alert svg {
+    flex-shrink: 0;
+
+    margin-top: 2px;
+
+    font-size: 1.125rem;
+}
+
+.ui-alert__content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ui-alert__title {
+    margin-bottom: var(--space-xs);
+
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.ui-alert__text {
+    margin: 0;
+
+    font-size: .875rem;
+    line-height: 1.6;
+}
+
+.ui-alert__text p:last-child {
+    margin-bottom: 0;
+}
+
+/* =========================================================
+ * DISMISS BUTTON
+ * ========================================================= */
+
+.ui-alert .close,
+.ui-alert .btn-close {
+    flex-shrink: 0;
+
+    margin-left: auto;
+
+    opacity: .65;
+
+    transition: opacity var(--transition-fast);
+}
+
+.ui-alert .close:hover,
+.ui-alert .btn-close:hover {
+    opacity: 1;
+}
+
+/* =========================================================
+ * COMPACT
+ * ========================================================= */
+
+.ui-alert--sm {
+    gap: var(--space-sm);
+
+    padding: var(--space-sm);
+}
+
+.ui-alert--sm i,
+.ui-alert--sm svg {
+    font-size: 1rem;
+}
+
+.ui-alert--sm .ui-alert__title {
+    font-size: .9375rem;
+}
+
+.ui-alert--sm .ui-alert__text {
+    font-size: .8125rem;
+}
+
+/* =========================================================
+ * LARGE
+ * ========================================================= */
+
+.ui-alert--lg {
+    gap: var(--space-lg);
+
+    padding: var(--space-lg);
+}
+
+.ui-alert--lg i,
+.ui-alert--lg svg {
+    font-size: 1.25rem;
+}
+
+.ui-alert--lg .ui-alert__title {
+    font-size: 1.0625rem;
+}
+
+.ui-alert--lg .ui-alert__text {
+    font-size: .9375rem;
+}

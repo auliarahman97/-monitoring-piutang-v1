@@ -1,0 +1,246 @@
+/* ==========================================================================
+   UI FRAMEWORK v1.0
+   Form Component
+   ========================================================================== */
+
+
+/* ==========================================================================
+   FORM GROUP
+   ========================================================================== */
+
+.ui-form-group {
+    margin-bottom: var(--space-lg);
+}
+
+
+/* ==========================================================================
+   LABEL
+   ========================================================================== */
+
+.ui-form-label {
+    display: inline-block;
+    margin-bottom: var(--space-xs);
+
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ui-form-label.required::after {
+    content: " *";
+    color: var(--color-danger);
+}
+
+
+/* ==========================================================================
+   FORM CONTROL
+   ========================================================================== */
+
+.ui-form-control,
+.ui-form-select,
+.ui-form-textarea {
+
+    display: block;
+    width: 100%;
+
+    min-height: var(--control-height);
+
+    padding:
+        var(--control-padding-y)
+        var(--control-padding-x);
+
+    background-color: var(--bg-card);
+
+    border: 1px solid var(--control-border-color);
+
+    border-radius: var(--control-radius);
+
+    color: var(--text-primary);
+
+    transition:
+        border-color var(--transition-normal),
+        box-shadow var(--transition-normal),
+        background-color var(--transition-normal);
+
+}
+
+
+/* ==========================================================================
+   TEXTAREA
+   ========================================================================== */
+
+.ui-form-textarea {
+
+    min-height: 120px;
+
+    resize: vertical;
+
+}
+
+
+/* ==========================================================================
+   SELECT
+   ========================================================================== */
+
+.ui-form-select {
+
+    cursor: pointer;
+
+}
+
+
+/* ==========================================================================
+   PLACEHOLDER
+   ========================================================================== */
+
+.ui-form-control::placeholder,
+.ui-form-textarea::placeholder {
+
+    color: var(--text-muted);
+
+}
+
+
+/* ==========================================================================
+   FOCUS
+   ========================================================================== */
+
+.ui-form-control:focus,
+.ui-form-select:focus,
+.ui-form-textarea:focus {
+
+    outline: none;
+
+    border-color: var(--color-primary);
+
+    box-shadow: var(--control-focus-shadow);
+
+}
+
+
+/* ==========================================================================
+   READONLY
+   ========================================================================== */
+
+.ui-form-control[readonly],
+.ui-form-textarea[readonly] {
+
+    background-color: var(--bg-soft);
+
+    cursor: default;
+
+}
+
+
+/* ==========================================================================
+   DISABLED
+   ========================================================================== */
+
+.ui-form-control:disabled,
+.ui-form-select:disabled,
+.ui-form-textarea:disabled {
+
+    background-color: var(--bg-soft);
+
+    cursor: not-allowed;
+
+    opacity: .7;
+
+}
+
+
+/* ==========================================================================
+   VALIDATION
+   ========================================================================== */
+
+.ui-form-control.is-valid,
+.ui-form-select.is-valid,
+.ui-form-textarea.is-valid {
+
+    border-color: var(--color-success);
+
+}
+
+.ui-form-control.is-invalid,
+.ui-form-select.is-invalid,
+.ui-form-textarea.is-invalid {
+
+    border-color: var(--color-danger);
+
+}
+
+
+/* ==========================================================================
+   HELP TEXT
+   ========================================================================== */
+
+.ui-form-text {
+
+    display: block;
+
+    margin-top: var(--space-xs);
+
+    font-size: .875rem;
+
+    color: var(--text-secondary);
+
+}
+
+
+/* ==========================================================================
+   VALIDATION MESSAGE
+   ========================================================================== */
+
+.ui-invalid-feedback {
+
+    display: block;
+
+    margin-top: var(--space-xs);
+
+    font-size: .875rem;
+
+    color: var(--color-danger);
+
+}
+
+.ui-valid-feedback {
+
+    display: block;
+
+    margin-top: var(--space-xs);
+
+    font-size: .875rem;
+
+    color: var(--color-success);
+
+}
+
+
+/* ==========================================================================
+   SIZE
+   ========================================================================== */
+
+.ui-form-control--sm,
+.ui-form-select--sm {
+
+    min-height: var(--control-height-sm);
+
+    padding:
+        var(--control-padding-y-sm)
+        var(--control-padding-x-sm);
+
+    font-size: .875rem;
+
+}
+
+.ui-form-control--lg,
+.ui-form-select--lg {
+
+    min-height: var(--control-height-lg);
+
+    padding:
+        var(--control-padding-y-lg)
+        var(--control-padding-x-lg);
+
+    font-size: 1rem;
+
+}

@@ -1,0 +1,30 @@
+/* ==========================================================
+   GLOBAL RESET
+========================================================== */
+
+*,
+*::before,
+*::after{
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    min-height:100vh;
+    text-rendering:optimizeLegibility;
+}
+
+img{
+    max-width:100%;
+    display:block;
+}
+
+button,
+input,
+textarea,
+select{
+    font:inherit;
+}
