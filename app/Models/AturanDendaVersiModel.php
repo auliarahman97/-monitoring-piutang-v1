@@ -4,56 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-/**
- * --------------------------------------------------------------------------
- * Aturan Denda Versi Model
- * --------------------------------------------------------------------------
- *
- * Menangani:
- * - Versioning aturan denda
- * - Periode berlaku
- * - Status draft / aktif / selesai
- * - Validasi periode
- * - Validasi overlap
- * - Soft delete
- * - Audit trail
- *
- * Business Rule:
- *
- * 1. Draft
- *    - Fleksibel untuk diedit.
- *    - Periode tidak boleh overlap dengan aktif/selesai.
- *
- * 2. Aktif
- *    - Tidak boleh diubah periodenya.
- *    - Tidak boleh diedit.
- *
- * 3. Selesai
- *    - Immutable.
- *    - Tidak boleh diedit.
- *
- * 4. Draft tidak pernah menjadi applicable version.
- */
-class AturanDendaVersiModel extends BaseModel
+use CodeIgniter\Model;
+
+class AturanDendaVersiModel extends Model
 {
-    /**
-     * ----------------------------------------------------------------------
-     * Table Configuration
-     * ----------------------------------------------------------------------
-     */
-
-    protected $table = 'aturan_denda_versi';
-
-    protected $primaryKey = 'id';
-
-    protected $returnType = 'array';
-
-
-    /**
-     * ----------------------------------------------------------------------
-     * Allowed Fields
-     * ----------------------------------------------------------------------
-     */
+    protected $table            = 'aturan_denda_versi';
+    protected $primaryKey       = 'id';
+    protected $returnType       = 'array';
+    protected $useSoftDeletes   = true;
+    protected $protectFields    = true;
 
     protected $allowedFields = [
         'kode_versi',
@@ -62,422 +21,317 @@ class AturanDendaVersiModel extends BaseModel
         'tanggal_selesai',
         'status',
         'keterangan',
-
         'created_by',
         'updated_by',
         'deleted_by',
     ];
 
+    protected $useTimestamps = true;
+
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
+    protected $deletedField = 'deleted_at';
 
     /**
-     * ----------------------------------------------------------------------
-     * Validation Rules
-     * ----------------------------------------------------------------------
+     * Status versi denda.
      */
+    public const STATUS_DRAFT   = 'draft';
+    public const STATUS_AKTIF   = 'aktif';
+    public const STATUS_SELESAI = 'selesai';
 
+    /**
+     * Daftar status yang valid.
+     *
+     * @return array<int, string>
+     */
+    public static function getValidStatuses(): array
+    {
+        return [
+            self::STATUS_DRAFT,
+            self::STATUS_AKTIF,
+            self::STATUS_SELESAI,
+        ];
+    }
+
+    /**
+     * Validation rules.
+     */
     protected $validationRules = [
         'kode_versi' => [
-            'label' => 'Kode Versi',
-            'rules' => 'required|max_length[30]',
+            'rules'  => 'required|max_length[50]',
+            'errors' => [
+                'required'   => 'Kode versi wajib diisi.',
+                'max_length' => 'Kode versi maksimal 50 karakter.',
+            ],
         ],
 
         'nama_versi' => [
-            'label' => 'Nama Versi',
-            'rules' => 'required|max_length[150]',
+            'rules'  => 'required|max_length[150]',
+            'errors' => [
+                'required'   => 'Nama versi wajib diisi.',
+                'max_length' => 'Nama versi maksimal 150 karakter.',
+            ],
         ],
 
         'tanggal_mulai' => [
-            'label' => 'Tanggal Mulai',
-            'rules' => 'required|valid_date[Y-m-d]',
+            'rules'  => 'required|valid_date[Y-m-d]',
+            'errors' => [
+                'required'   => 'Tanggal mulai wajib diisi.',
+                'valid_date' => 'Format tanggal mulai tidak valid.',
+            ],
         ],
 
         'tanggal_selesai' => [
-            'label' => 'Tanggal Selesai',
-            'rules' => 'permit_empty|valid_date[Y-m-d]',
+            'rules'  => 'permit_empty|valid_date[Y-m-d]',
+            'errors' => [
+                'valid_date' => 'Format tanggal selesai tidak valid.',
+            ],
         ],
 
         'status' => [
-            'label' => 'Status',
-            'rules' => 'required|in_list[draft,aktif,selesai]',
+            'rules'  => 'required|in_list[draft,aktif,selesai]',
+            'errors' => [
+                'required' => 'Status versi wajib diisi.',
+                'in_list'  => 'Status versi tidak valid.',
+            ],
         ],
 
         'keterangan' => [
-            'label' => 'Keterangan',
-            'rules' => 'permit_empty',
+            'rules'  => 'permit_empty|max_length[500]',
+            'errors' => [
+                'max_length' => 'Keterangan maksimal 500 karakter.',
+            ],
+        ],
+
+        'created_by' => [
+            'rules' => 'permit_empty|is_natural_no_zero',
+        ],
+
+        'updated_by' => [
+            'rules' => 'permit_empty|is_natural_no_zero',
+        ],
+
+        'deleted_by' => [
+            'rules' => 'permit_empty|is_natural_no_zero',
         ],
     ];
 
+    protected $validationMessages = [];
+
+    protected $skipValidation = false;
 
     /**
-     * ----------------------------------------------------------------------
-     * Status Constants
-     * ----------------------------------------------------------------------
+     * Ambil seluruh versi.
+     *
+     * @return array<int, array<string, mixed>>
      */
-
-    public const STATUS_DRAFT = 'draft';
-
-    public const STATUS_AKTIF = 'aktif';
-
-    public const STATUS_SELESAI = 'selesai';
-
-
-    /**
-     * ----------------------------------------------------------------------
-     * Ambil Semua Versi
-     * ----------------------------------------------------------------------
-     */
-
     public function getAllVersions(): array
     {
         return $this
-            ->orderBy(
-                'tanggal_mulai',
-                'DESC'
-            )
+            ->orderBy('tanggal_mulai', 'DESC')
+            ->orderBy('id', 'DESC')
             ->findAll();
     }
 
-
     /**
-     * ----------------------------------------------------------------------
-     * Ambil Versi Berdasarkan ID
-     * ----------------------------------------------------------------------
+     * Ambil versi berdasarkan ID.
      */
-
-    public function getById(
-        int $id
-    ): ?array {
-
-        return $this
-            ->where(
-                'id',
-                $id
-            )
-            ->first();
-    }
-
-
-    /**
-     * ----------------------------------------------------------------------
-     * Ambil Versi yang Berlaku
-     * ----------------------------------------------------------------------
-     *
-     * Draft TIDAK boleh ikut dalam pencarian.
-     *
-     * Yang boleh menjadi applicable:
-     * - aktif
-     * - selesai
-     */
-
-    public function getApplicableVersion(
-        string $tanggal
-    ): ?array {
-
-        return $this
-            ->whereIn(
-                'status',
-                [
-                    self::STATUS_AKTIF,
-                    self::STATUS_SELESAI,
-                ]
-            )
-            ->where(
-                'tanggal_mulai <=',
-                $tanggal
-            )
-            ->groupStart()
-                ->where(
-                    'tanggal_selesai >=',
-                    $tanggal
-                )
-                ->orWhere(
-                    'tanggal_selesai IS NULL',
-                    null,
-                    false
-                )
-            ->groupEnd()
-            ->orderBy(
-                'tanggal_mulai',
-                'DESC'
-            )
-            ->first();
-    }
-
-
-    /**
-     * ----------------------------------------------------------------------
-     * Ambil Versi Aktif
-     * ----------------------------------------------------------------------
-     */
-
-    public function getActiveVersion(): ?array
+    public function findVersion(int $id): ?array
     {
-        return $this
-            ->where(
-                'status',
-                self::STATUS_AKTIF
-            )
-            ->orderBy(
-                'tanggal_mulai',
-                'DESC'
-            )
-            ->first();
+        $result = $this->find($id);
+
+        return $result ?: null;
     }
 
+    /**
+     * Ambil versi berdasarkan kode versi.
+     */
+    public function findByCode(string $kodeVersi): ?array
+    {
+        $result = $this
+            ->where('kode_versi', $kodeVersi)
+            ->first();
+
+        return $result ?: null;
+    }
 
     /**
-     * ----------------------------------------------------------------------
-     * Validasi Periode
-     * ----------------------------------------------------------------------
+     * Ambil versi yang sedang aktif berdasarkan tanggal.
+     *
+     * Status harus aktif dan tanggal hari ini berada dalam periode versi.
      */
+    public function getActiveVersion(?string $tanggal = null): ?array
+    {
+        $tanggal ??= date('Y-m-d');
 
-    public function validatePeriod(
+        $result = $this
+            ->where('status', self::STATUS_AKTIF)
+            ->where('tanggal_mulai <=', $tanggal)
+            ->groupStart()
+                ->where('tanggal_selesai >=', $tanggal)
+                ->orWhere('tanggal_selesai IS NULL', null, false)
+            ->groupEnd()
+            ->orderBy('tanggal_mulai', 'DESC')
+            ->first();
+
+        return $result ?: null;
+    }
+
+    /**
+     * Alias untuk mendapatkan versi yang berlaku.
+     *
+     * Versi draft tidak dianggap berlaku.
+     */
+    public function getApplicableVersion(?string $tanggal = null): ?array
+    {
+        return $this->getActiveVersion($tanggal);
+    }
+
+    /**
+     * Cek apakah versi berstatus draft.
+     */
+    public function isDraft(array $versi): bool
+    {
+        return ($versi['status'] ?? null) === self::STATUS_DRAFT;
+    }
+
+    /**
+     * Cek apakah versi berstatus aktif.
+     */
+    public function isActive(array $versi): bool
+    {
+        return ($versi['status'] ?? null) === self::STATUS_AKTIF;
+    }
+
+    /**
+     * Cek apakah versi sudah selesai.
+     */
+    public function isFinished(array $versi): bool
+    {
+        return ($versi['status'] ?? null) === self::STATUS_SELESAI;
+    }
+
+    /**
+     * Cek apakah periode versi valid.
+     *
+     * Jika tanggal selesai diisi, tanggal tersebut tidak boleh
+     * lebih kecil dari tanggal mulai.
+     */
+    public function isValidPeriod(
         string $tanggalMulai,
         ?string $tanggalSelesai = null
-    ): ?string {
-
-        if (
-            $tanggalSelesai !== null
-            && $tanggalSelesai < $tanggalMulai
-        ) {
-
-            return
-                'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.';
+    ): bool {
+        if ($tanggalSelesai === null || $tanggalSelesai === '') {
+            return true;
         }
 
-        return null;
+        return $tanggalSelesai >= $tanggalMulai;
     }
 
-
     /**
-     * ----------------------------------------------------------------------
-     * Cek Tanggal Dalam Versi
-     * ----------------------------------------------------------------------
-     */
-
-    public function isDateWithinVersion(
-        array $versi,
-        string $tanggal
-    ): bool {
-
-        if (
-            $tanggal < $versi['tanggal_mulai']
-        ) {
-
-            return false;
-        }
-
-
-        if (
-            ! empty($versi['tanggal_selesai'])
-            && $tanggal > $versi['tanggal_selesai']
-        ) {
-
-            return false;
-        }
-
-
-        return true;
-    }
-
-
-    /**
-     * ----------------------------------------------------------------------
-     * Cek Apakah Versi Immutable
-     * ----------------------------------------------------------------------
+     * Mencari versi AKTIF/SELESAI yang periodenya bertabrakan
+     * dengan periode yang diberikan.
      *
-     * Aktif dan selesai tidak boleh diedit.
-     */
-
-    public function isImmutable(
-        array $versi
-    ): bool {
-
-        return in_array(
-            $versi['status'] ?? null,
-            [
-                self::STATUS_AKTIF,
-                self::STATUS_SELESAI,
-            ],
-            true
-        );
-    }
-
-
-    /**
-     * ----------------------------------------------------------------------
-     * Cek Apakah Versi Draft
-     * ----------------------------------------------------------------------
-     */
-
-    public function isDraft(
-        array $versi
-    ): bool {
-
-        return (
-            ($versi['status'] ?? null)
-            === self::STATUS_DRAFT
-        );
-    }
-
-
-    /**
-     * ----------------------------------------------------------------------
-     * Cek Overlap Dengan Versi Aktif / Selesai
-     * ----------------------------------------------------------------------
+     * Draft tidak dianggap sebagai penghalang.
      *
-     * Draft boleh fleksibel, tetapi tidak boleh overlap
-     * dengan versi yang sudah aktif atau selesai.
-     *
-     * Draft lain tidak menjadi penghalang.
+     * @return array<string, mixed>|null
      */
-
     public function hasPeriodOverlap(
         string $tanggalMulai,
         ?string $tanggalSelesai = null,
         ?int $exceptId = null
-    ): bool {
-
-        /*
-         * Periode tanpa tanggal selesai dianggap tidak terbatas.
-         */
-
-        $tanggalSelesaiUntukQuery =
-            $tanggalSelesai ?? '9999-12-31';
-
-
-        $builder =
-            $this
-                ->whereIn(
-                    'status',
-                    [
-                        self::STATUS_AKTIF,
-                        self::STATUS_SELESAI,
-                    ]
-                )
-                ->where(
-                    'tanggal_mulai <=',
-                    $tanggalSelesaiUntukQuery
-                )
-                ->groupStart()
-                    ->where(
-                        'tanggal_selesai >=',
-                        $tanggalMulai
-                    )
-                    ->orWhere(
-                        'tanggal_selesai IS NULL',
-                        null,
-                        false
-                    )
-                ->groupEnd();
-
-
-        /*
-         * Saat edit draft, jangan membandingkan
-         * dengan dirinya sendiri.
-         */
-
-        if ($exceptId !== null) {
-
-            $builder->where(
-                'id !=',
-                $exceptId
-            );
-        }
-
-
-        return (
-            $builder->countAllResults() > 0
-        );
-    }
-
-
-    /**
-     * ----------------------------------------------------------------------
-     * Cari Versi Yang Bentrok
-     * ----------------------------------------------------------------------
-     *
-     * Berguna untuk memberikan pesan error yang lebih informatif.
-     */
-
-    public function findOverlappingVersion(
-        string $tanggalMulai,
-        ?string $tanggalSelesai = null,
-        ?int $exceptId = null
     ): ?array {
+        $tanggalSelesai = $tanggalSelesai ?: '9999-12-31';
 
-        $tanggalSelesaiUntukQuery =
-            $tanggalSelesai ?? '9999-12-31';
-
-
-        $builder =
-            $this
-                ->whereIn(
-                    'status',
-                    [
-                        self::STATUS_AKTIF,
-                        self::STATUS_SELESAI,
-                    ]
-                )
-                ->where(
-                    'tanggal_mulai <=',
-                    $tanggalSelesaiUntukQuery
-                )
-                ->groupStart()
-                    ->where(
-                        'tanggal_selesai >=',
-                        $tanggalMulai
-                    )
-                    ->orWhere(
-                        'tanggal_selesai IS NULL',
-                        null,
-                        false
-                    )
-                ->groupEnd();
-
-
-        if ($exceptId !== null) {
-
-            $builder->where(
-                'id !=',
-                $exceptId
-            );
-        }
-
-
-        return $builder->first();
-    }
-
-
-    /**
-     * ----------------------------------------------------------------------
-     * Deprecated: closePreviousVersion()
-     * ----------------------------------------------------------------------
-     *
-     * Method ini sengaja tidak digunakan lagi.
-     *
-     * Business rule baru:
-     *
-     * - Aktif tidak boleh diubah.
-     * - Selesai tidak boleh diubah.
-     *
-     * Karena itu sistem TIDAK BOLEH otomatis mengubah
-     * tanggal_selesai versi sebelumnya.
-     */
-
-    public function closePreviousVersion(
-        string $tanggalMulaiBaru,
-        int $newVersionId
-    ): bool {
+        $builder = $this
+            ->whereIn('status', [
+                self::STATUS_AKTIF,
+                self::STATUS_SELESAI,
+            ])
+            ->where('tanggal_mulai <=', $tanggalSelesai)
+            ->groupStart()
+                ->where('tanggal_selesai >=', $tanggalMulai)
+                ->orWhere('tanggal_selesai IS NULL', null, false)
+            ->groupEnd();
 
         /*
-         * Tidak melakukan apa-apa.
-         *
-         * Dipertahankan hanya untuk mencegah
-         * pemanggilan lama menyebabkan perubahan
-         * terhadap data historis.
-         */
+        * Saat edit draft, versi yang sedang diedit
+        * tidak boleh dianggap sebagai konflik.
+        */
+        if ($exceptId !== null) {
+            $builder->where('id !=', $exceptId);
+        }
 
-        return true;
+        $result = $builder
+            ->orderBy('tanggal_mulai', 'ASC')
+            ->first();
+
+        return $result ?: null;
+    }
+
+    /**
+     * Cek apakah kode versi sudah digunakan.
+     */
+    public function codeExists(
+        string $kodeVersi,
+        ?int $exceptId = null
+    ): bool {
+        $builder = $this
+            ->where('kode_versi', $kodeVersi);
+
+        if ($exceptId !== null) {
+            $builder->where('id !=', $exceptId);
+        }
+
+        return $builder->countAllResults() > 0;
+    }
+
+    /**
+     * Hitung jumlah versi berdasarkan status.
+     */
+    public function countByStatus(string $status): int
+    {
+        return $this
+            ->where('status', $status)
+            ->countAllResults();
+    }
+
+    /**
+     * Ambil versi draft.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getDraftVersions(): array
+    {
+        return $this
+            ->where('status', self::STATUS_DRAFT)
+            ->orderBy('tanggal_mulai', 'ASC')
+            ->findAll();
+    }
+
+    /**
+     * Ambil versi aktif.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getActiveVersions(): array
+    {
+        return $this
+            ->where('status', self::STATUS_AKTIF)
+            ->orderBy('tanggal_mulai', 'DESC')
+            ->findAll();
+    }
+
+    /**
+     * Ambil versi selesai.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getFinishedVersions(): array
+    {
+        return $this
+            ->where('status', self::STATUS_SELESAI)
+            ->orderBy('tanggal_mulai', 'DESC')
+            ->findAll();
     }
 }

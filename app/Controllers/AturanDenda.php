@@ -14,16 +14,11 @@ class AturanDenda extends BaseController
 
     protected AturanDendaModel $aturanModel;
 
-
     public function __construct()
     {
-        $this->versiModel =
-            new AturanDendaVersiModel();
-
-        $this->aturanModel =
-            new AturanDendaModel();
+        $this->versiModel = new AturanDendaVersiModel();
+        $this->aturanModel = new AturanDendaModel();
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -33,33 +28,20 @@ class AturanDenda extends BaseController
 
     public function index(): string
     {
-        $versiList =
-            $this->versiModel->getAllVersions();
+        $versiList = $this->versiModel->getAllVersions();
 
-
-        foreach (
-            $versiList as $key => $versi
-        ) {
-
+        foreach ($versiList as $key => $versi) {
             $versiList[$key]['aturan'] =
                 $this->aturanModel->getByVersionId(
                     (int) $versi['id']
                 );
         }
 
-
-        return view(
-            'aturan_denda/index',
-            [
-                'title' =>
-                    'Pengaturan Denda',
-
-                'versiList' =>
-                    $versiList,
-            ]
-        );
+        return view('aturan_denda/index', [
+            'title'     => 'Pengaturan Denda',
+            'versiList' => $versiList,
+        ]);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -69,15 +51,10 @@ class AturanDenda extends BaseController
 
     public function create(): string
     {
-        return view(
-            'aturan_denda/create',
-            [
-                'title' =>
-                    'Buat Versi Aturan Denda',
-            ]
-        );
+        return view('aturan_denda/create', [
+            'title' => 'Buat Versi Aturan Denda',
+        ]);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -87,19 +64,11 @@ class AturanDenda extends BaseController
 
     public function store(): RedirectResponse
     {
-        $data =
-            $this->getVersionFormData();
+        $data = $this->getVersionFormData();
 
+        $rules = $this->request->getPost('rules');
 
-        $rules =
-            $this->request->getPost('rules');
-
-
-        if (
-            ! is_array($rules)
-            || empty($rules)
-        ) {
-
+        if (! is_array($rules) || empty($rules)) {
             return $this->backWithInput()
                 ->with(
                     'error',
@@ -107,90 +76,58 @@ class AturanDenda extends BaseController
                 );
         }
 
-
         /*
          * Semua versi baru selalu dibuat sebagai DRAFT.
          */
-
-        $data['status'] =
-            AturanDendaVersiModel::STATUS_DRAFT;
-
+        $data['status'] = AturanDendaVersiModel::STATUS_DRAFT;
 
         /*
-         * Validasi model.
+         * Validasi dasar model.
          */
-
-        if (
-            ! $this->versiModel->validate(
-                $data
-            )
-        ) {
-
+        if (! $this->versiModel->validate($data)) {
             return $this->backWithInput();
         }
 
-
         /*
-         * Validasi periode dasar.
+         * Validasi periode.
          */
-
-        $periodError =
-            $this->versiModel->validatePeriod(
-                $data['tanggal_mulai'],
-                $data['tanggal_selesai']
-            );
-
-
-        if (
-            $periodError !== null
-        ) {
-
+        if (! $this->versiModel->isValidPeriod(
+            $data['tanggal_mulai'],
+            $data['tanggal_selesai']
+        )) {
             return $this->backWithInput()
                 ->with(
                     'error',
-                    $periodError
+                    'Tanggal selesai tidak boleh lebih kecil dari tanggal mulai.'
                 );
         }
 
-
         /*
-         * Draft tidak boleh overlap dengan
-         * versi AKTIF atau SELESAI.
+         * Draft tidak boleh overlap dengan versi
+         * AKTIF atau SELESAI.
          */
+        $overlap = $this->versiModel->hasPeriodOverlap(
+            $data['tanggal_mulai'],
+            $data['tanggal_selesai']
+        );
 
-        $overlap =
-            $this->versiModel
-                ->findOverlappingVersion(
-                    $data['tanggal_mulai'],
-                    $data['tanggal_selesai']
-                );
-
-
-        if (
-            $overlap !== null
-        ) {
-
+        if ($overlap !== null) {
             return $this->backWithInput()
                 ->with(
                     'error',
-                    $this->buildOverlapMessage(
-                        $overlap
-                    )
+                    $this->buildOverlapMessage($overlap)
                 );
         }
 
-
         /*
-         * Notice period tetap dipertahankan
-         * untuk pembuatan versi baru.
+         * Notice period.
+         *
+         * Versi pertama boleh dibuat kapan saja.
+         * Versi berikutnya minimal 30 hari dari hari ini.
          */
-
-        if (
-            ! $this->canCreateVersionOnDate(
-                $data['tanggal_mulai']
-            )
-        ) {
-
+        if (! $this->canCreateVersionOnDate(
+            $data['tanggal_mulai']
+        )) {
             return $this->backWithInput()
                 ->with(
                     'error',
@@ -198,27 +135,14 @@ class AturanDenda extends BaseController
                 );
         }
 
-
         /*
-         * Validasi rentang.
+         * Normalisasi dan validasi rules.
          */
+        $normalizedRules = $this->normalizeRules($rules);
 
-        $normalizedRules =
-            $this->normalizeRules(
-                $rules
-            );
+        $ruleError = $this->validateRules($normalizedRules);
 
-
-        $ruleError =
-            $this->validateRules(
-                $normalizedRules
-            );
-
-
-        if (
-            $ruleError !== null
-        ) {
-
+        if ($ruleError !== null) {
             return $this->backWithInput()
                 ->with(
                     'error',
@@ -226,80 +150,39 @@ class AturanDenda extends BaseController
                 );
         }
 
-
         /*
          * Generate kode versi.
          */
+        $data['kode_versi'] = $this->generateVersionCode();
 
-        $data['kode_versi'] =
-            $this->generateVersionCode();
-
-
-        $data['created_by'] =
-            $this->currentUserId();
-
+        $data['created_by'] = $this->currentUserId();
 
         /*
          * Transaction.
          */
-
         $db = db_connect();
 
         $db->transStart();
 
+        $versiId = $this->versiModel->insert(
+            $data,
+            true
+        );
 
-        /*
-         * Simpan versi.
-         */
-
-        $versiId =
-            $this->versiModel->insert(
-                $data,
-                true
-            );
-
-
-        if (
-            $versiId === false
-        ) {
-
+        if ($versiId === false) {
             $db->transRollback();
 
             return $this->backWithInput();
         }
 
-
         /*
-         * PENTING:
-         *
-         * Tidak ada closePreviousVersion().
-         *
-         * Kita tidak boleh mengubah periode
-         * versi aktif/selesai sebelumnya.
+         * Simpan seluruh rules.
          */
+        foreach ($normalizedRules as $rule) {
+            $rule['versi_id'] = (int) $versiId;
+            $rule['created_by'] = $this->currentUserId();
 
-
-        /*
-         * Simpan rentang.
-         */
-
-        foreach (
-            $normalizedRules as $rule
-        ) {
-
-            $rule['versi_id'] =
-                (int) $versiId;
-
-            $rule['created_by'] =
-                $this->currentUserId();
-
-
-            if (
-                ! $this->aturanModel->insert(
-                    $rule
-                )
-            ) {
-
+            if (! $this->aturanModel->insert($rule)) {
                 $db->transRollback();
 
                 return $this->backWithInput()
@@ -310,20 +193,14 @@ class AturanDenda extends BaseController
             }
         }
 
-
         $db->transComplete();
 
-
-        if (
-            ! $db->transStatus()
-        ) {
-
+        if (! $db->transStatus()) {
             return $this->redirectError(
                 'pengaturan/aturan-denda',
                 'Versi aturan denda gagal disimpan.'
             );
         }
-
 
         return $this->redirectSuccess(
             'pengaturan/aturan-denda',
@@ -331,55 +208,31 @@ class AturanDenda extends BaseController
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Detail
     |--------------------------------------------------------------------------
     */
 
-    public function detail(
-        int $id
-    ): RedirectResponse|string {
+    public function detail(int $id): RedirectResponse|string
+    {
+        $versi = $this->versiModel->findVersion($id);
 
-        $versi =
-            $this->versiModel->getById(
-                $id
-            );
-
-
-        if (
-            $versi === null
-        ) {
-
+        if ($versi === null) {
             return $this->redirectError(
                 'pengaturan/aturan-denda',
                 'Versi aturan denda tidak ditemukan.'
             );
         }
 
+        $aturan = $this->aturanModel->getByVersionId($id);
 
-        $aturan =
-            $this->aturanModel->getByVersionId(
-                $id
-            );
-
-
-        return view(
-            'aturan_denda/detail',
-            [
-                'title' =>
-                    'Detail Versi Aturan Denda',
-
-                'versi' =>
-                    $versi,
-
-                'aturan' =>
-                    $aturan,
-            ]
-        );
+        return view('aturan_denda/detail', [
+            'title'  => 'Detail Versi Aturan Denda',
+            'versi'  => $versi,
+            'aturan' => $aturan,
+        ]);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -387,65 +240,35 @@ class AturanDenda extends BaseController
     |--------------------------------------------------------------------------
     */
 
-    public function edit(
-        int $id
-    ): RedirectResponse|string {
+    public function edit(int $id): RedirectResponse|string
+    {
+        $versi = $this->versiModel->findVersion($id);
 
-        $versi =
-            $this->versiModel->getById(
-                $id
-            );
-
-
-        if (
-            $versi === null
-        ) {
-
+        if ($versi === null) {
             return $this->redirectError(
                 'pengaturan/aturan-denda',
                 'Versi aturan denda tidak ditemukan.'
             );
         }
 
-
         /*
          * Hanya DRAFT yang boleh diedit.
          */
-
-        if (
-            ! $this->versiModel->isDraft(
-                $versi
-            )
-        ) {
-
+        if (! $this->versiModel->isDraft($versi)) {
             return $this->redirectError(
                 'pengaturan/aturan-denda',
                 'Versi aktif dan selesai tidak dapat diedit. Buat versi baru untuk perubahan aturan.'
             );
         }
 
+        $aturan = $this->aturanModel->getByVersionId($id);
 
-        $aturan =
-            $this->aturanModel->getByVersionId(
-                $id
-            );
-
-
-        return view(
-            'aturan_denda/edit',
-            [
-                'title' =>
-                    'Edit Versi Aturan Denda',
-
-                'versi' =>
-                    $versi,
-
-                'aturan' =>
-                    $aturan,
-            ]
-        );
+        return view('aturan_denda/edit', [
+            'title'  => 'Edit Versi Aturan Denda',
+            'versi'  => $versi,
+            'aturan' => $aturan,
+        ]);
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -453,61 +276,33 @@ class AturanDenda extends BaseController
     |--------------------------------------------------------------------------
     */
 
-    public function update(
-        int $id
-    ): RedirectResponse {
+    public function update(int $id): RedirectResponse
+    {
+        $versi = $this->versiModel->findVersion($id);
 
-        $versi =
-            $this->versiModel->getById(
-                $id
-            );
-
-
-        if (
-            $versi === null
-        ) {
-
+        if ($versi === null) {
             return $this->redirectError(
                 'pengaturan/aturan-denda',
                 'Versi aturan denda tidak ditemukan.'
             );
         }
 
-
         /*
-         * ================================================================
-         * HARD LOCK
-         * ================================================================
-         *
-         * Hanya DRAFT yang boleh masuk proses update.
+         * HARD LOCK:
+         * hanya DRAFT yang boleh diubah.
          */
-
-        if (
-            ! $this->versiModel->isDraft(
-                $versi
-            )
-        ) {
-
+        if (! $this->versiModel->isDraft($versi)) {
             return $this->redirectError(
                 'pengaturan/aturan-denda',
                 'Versi aktif dan selesai tidak dapat diubah.'
             );
         }
 
+        $data = $this->getVersionFormData();
 
-        $data =
-            $this->getVersionFormData();
+        $rules = $this->request->getPost('rules');
 
-
-        $rules =
-            $this->request->getPost('rules');
-
-
-        if (
-            ! is_array($rules)
-            || empty($rules)
-        ) {
-
+        if (! is_array($rules) || empty($rules)) {
             return $this->backWithInput()
                 ->with(
                     'error',
@@ -515,106 +310,61 @@ class AturanDenda extends BaseController
                 );
         }
 
-
         /*
-         * Status tidak boleh diubah melalui form edit.
+         * Status tetap DRAFT.
          *
-         * Tetap DRAFT.
+         * User tidak boleh mengubah status melalui form edit.
          */
-
-        $data['status'] =
-            AturanDendaVersiModel::STATUS_DRAFT;
-
+        $data['status'] = AturanDendaVersiModel::STATUS_DRAFT;
 
         /*
          * Validasi model.
          */
-
-        if (
-            ! $this->versiModel->validate(
-                $data
-            )
-        ) {
-
+        if (! $this->versiModel->validate($data)) {
             return $this->backWithInput();
         }
-
 
         /*
          * Validasi periode.
          */
-
-        $periodError =
-            $this->versiModel->validatePeriod(
-                $data['tanggal_mulai'],
-                $data['tanggal_selesai']
-            );
-
-
-        if (
-            $periodError !== null
-        ) {
-
+        if (! $this->versiModel->isValidPeriod(
+            $data['tanggal_mulai'],
+            $data['tanggal_selesai']
+        )) {
             return $this->backWithInput()
                 ->with(
                     'error',
-                    $periodError
+                    'Tanggal selesai tidak boleh lebih kecil dari tanggal mulai.'
                 );
         }
 
-
         /*
-         * ================================================================
-         * VALIDASI OVERLAP
-         * ================================================================
+         * Cek overlap.
          *
-         * Draft boleh digeser ke mana pun selama tidak overlap
-         * dengan versi AKTIF atau SELESAI.
+         * Versi yang sedang diedit dikecualikan.
          */
+        $overlap = $this->versiModel->hasPeriodOverlap(
+            $data['tanggal_mulai'],
+            $data['tanggal_selesai'],
+            $id
+        );
 
-        $overlap =
-            $this->versiModel
-                ->findOverlappingVersion(
-                    $data['tanggal_mulai'],
-                    $data['tanggal_selesai'],
-                    $id
-                );
-
-
-        if (
-            $overlap !== null
-        ) {
-
+        if ($overlap !== null) {
             return $this->backWithInput()
                 ->with(
                     'error',
-                    $this->buildOverlapMessage(
-                        $overlap
-                    )
+                    $this->buildOverlapMessage($overlap)
                 );
         }
 
-
         /*
-         * Validasi rentang.
+         * Normalisasi dan validasi rules.
          */
+        $normalizedRules = $this->normalizeRules($rules);
 
-        $normalizedRules =
-            $this->normalizeRules(
-                $rules
-            );
+        $ruleError = $this->validateRules($normalizedRules);
 
-
-        $ruleError =
-            $this->validateRules(
-                $normalizedRules
-            );
-
-
-        if (
-            $ruleError !== null
-        ) {
-
+        if ($ruleError !== null) {
             return $this->backWithInput()
                 ->with(
                     'error',
@@ -622,55 +372,34 @@ class AturanDenda extends BaseController
                 );
         }
 
-
         /*
          * Audit.
          */
-
-        $data['updated_by'] =
-            $this->currentUserId();
-
+        $data['updated_by'] = $this->currentUserId();
 
         $db = db_connect();
 
         $db->transStart();
 
-
         /*
-         * Update draft.
-         *
-         * Tidak menyentuh versi lain.
+         * Update versi.
          */
-
-        if (
-            ! $this->versiModel->update(
-                $id,
-                $data
-            )
-        ) {
-
+        if (! $this->versiModel->update($id, $data)) {
             $db->transRollback();
 
             return $this->backWithInput();
         }
 
-
         /*
-         * Hapus rentang lama.
+         * Replace seluruh rules.
          *
-         * Karena status masih DRAFT,
-         * perubahan aturan masih diperbolehkan.
+         * Karena versi masih DRAFT, seluruh rentang
+         * masih boleh diganti.
          */
-
-        if (
-            ! $this->aturanModel
-                ->where(
-                    'versi_id',
-                    $id
-                )
-                ->delete()
+        if (! $this->aturanModel
+            ->where('versi_id', $id)
+            ->delete()
         ) {
-
             $db->transRollback();
 
             return $this->backWithInput()
@@ -680,28 +409,14 @@ class AturanDenda extends BaseController
                 );
         }
 
-
         /*
-         * Simpan rentang baru.
+         * Simpan rules baru.
          */
+        foreach ($normalizedRules as $rule) {
+            $rule['versi_id'] = $id;
+            $rule['created_by'] = $this->currentUserId();
 
-        foreach (
-            $normalizedRules as $rule
-        ) {
-
-            $rule['versi_id'] =
-                $id;
-
-            $rule['created_by'] =
-                $this->currentUserId();
-
-
-            if (
-                ! $this->aturanModel->insert(
-                    $rule
-                )
-            ) {
-
+            if (! $this->aturanModel->insert($rule)) {
                 $db->transRollback();
 
                 return $this->backWithInput()
@@ -712,20 +427,14 @@ class AturanDenda extends BaseController
             }
         }
 
-
         $db->transComplete();
 
-
-        if (
-            ! $db->transStatus()
-        ) {
-
+        if (! $db->transStatus()) {
             return $this->redirectError(
                 'pengaturan/aturan-denda',
                 'Versi aturan denda gagal diperbarui.'
             );
         }
-
 
         return $this->redirectSuccess(
             'pengaturan/aturan-denda',
@@ -733,111 +442,67 @@ class AturanDenda extends BaseController
         );
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | Delete
     |--------------------------------------------------------------------------
     */
 
-    public function delete(
-        int $id
-    ): RedirectResponse {
+    public function delete(int $id): RedirectResponse
+    {
+        $versi = $this->versiModel->findVersion($id);
 
-        $versi =
-            $this->versiModel->getById(
-                $id
-            );
-
-
-        if (
-            $versi === null
-        ) {
-
+        if ($versi === null) {
             return $this->redirectError(
                 'pengaturan/aturan-denda',
                 'Versi aturan denda tidak ditemukan.'
             );
         }
 
-
         /*
          * Hanya DRAFT yang boleh dihapus.
          */
-
-        if (
-            ! $this->versiModel->isDraft(
-                $versi
-            )
-        ) {
-
+        if (! $this->versiModel->isDraft($versi)) {
             return $this->redirectError(
                 'pengaturan/aturan-denda',
                 'Versi aktif dan selesai tidak dapat dihapus.'
             );
         }
 
+        $currentUserId = $this->currentUserId();
 
         $db = db_connect();
 
         $db->transStart();
 
-
         /*
-         * Audit deleted_by.
+         * Audit penghapusan seluruh rules.
          */
+        $rules = $this->aturanModel->getByVersionId($id);
 
-        if (
-            ! $this->versiModel->update(
-                $id,
+        foreach ($rules as $rule) {
+            if (! $this->aturanModel->update(
+                (int) $rule['id'],
                 [
-                    'deleted_by' =>
-                        $this->currentUserId(),
+                    'deleted_by' => $currentUserId,
                 ]
-            )
-        ) {
+            )) {
+                $db->transRollback();
 
-            $db->transRollback();
-
-            return $this->redirectError(
-                'pengaturan/aturan-denda',
-                'Audit penghapusan versi gagal disimpan.'
-            );
+                return $this->redirectError(
+                    'pengaturan/aturan-denda',
+                    'Audit penghapusan rentang aturan gagal disimpan.'
+                );
+            }
         }
 
-
         /*
-         * Soft delete versi.
+         * Soft delete rules.
          */
-
-        if (
-            ! $this->versiModel->delete(
-                $id
-            )
+        if (! $this->aturanModel
+            ->where('versi_id', $id)
+            ->delete()
         ) {
-
-            $db->transRollback();
-
-            return $this->redirectError(
-                'pengaturan/aturan-denda',
-                'Draft aturan gagal dinonaktifkan.'
-            );
-        }
-
-
-        /*
-         * Soft delete rentang.
-         */
-
-        if (
-            ! $this->aturanModel
-                ->where(
-                    'versi_id',
-                    $id
-                )
-                ->delete()
-        ) {
-
             $db->transRollback();
 
             return $this->redirectError(
@@ -846,13 +511,28 @@ class AturanDenda extends BaseController
             );
         }
 
+        /*
+         * Audit penghapusan versi.
+         */
+        if (! $this->versiModel->update(
+            $id,
+            [
+                'deleted_by' => $currentUserId,
+            ]
+        )) {
+            $db->transRollback();
 
-        $db->transComplete();
+            return $this->redirectError(
+                'pengaturan/aturan-denda',
+                'Audit penghapusan versi gagal disimpan.'
+            );
+        }
 
-
-        if (
-            ! $db->transStatus()
-        ) {
+        /*
+         * Soft delete versi.
+         */
+        if (! $this->versiModel->delete($id)) {
+            $db->transRollback();
 
             return $this->redirectError(
                 'pengaturan/aturan-denda',
@@ -860,13 +540,20 @@ class AturanDenda extends BaseController
             );
         }
 
+        $db->transComplete();
+
+        if (! $db->transStatus()) {
+            return $this->redirectError(
+                'pengaturan/aturan-denda',
+                'Draft aturan gagal dinonaktifkan.'
+            );
+        }
 
         return $this->redirectSuccess(
             'pengaturan/aturan-denda',
             'Draft aturan denda berhasil dinonaktifkan.'
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -877,37 +564,22 @@ class AturanDenda extends BaseController
     protected function getVersionFormData(): array
     {
         return [
-            'nama_versi' =>
-                trim(
-                    (string) $this->request
-                        ->getPost(
-                            'nama_versi'
-                        )
-                ),
+            'nama_versi' => trim(
+                (string) $this->request->getPost('nama_versi')
+            ),
 
-            'tanggal_mulai' =>
-                $this->request
-                    ->getPost(
-                        'tanggal_mulai'
-                    ),
+            'tanggal_mulai' => (string) $this->request
+                ->getPost('tanggal_mulai'),
 
-            'tanggal_selesai' =>
-                $this->request
-                    ->getPost(
-                        'tanggal_selesai'
-                    )
-                    ?: null,
+            'tanggal_selesai' => $this->request
+                ->getPost('tanggal_selesai')
+                ?: null,
 
-            'keterangan' =>
-                trim(
-                    (string) $this->request
-                        ->getPost(
-                            'keterangan'
-                        )
-                ),
+            'keterangan' => trim(
+                (string) $this->request->getPost('keterangan')
+            ),
         ];
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -915,34 +587,25 @@ class AturanDenda extends BaseController
     |--------------------------------------------------------------------------
     */
 
-    protected function buildOverlapMessage(
-        array $versi
-    ): string {
+    protected function buildOverlapMessage(array $versi): string
+    {
+        $status = ucfirst(
+            (string) ($versi['status'] ?? '')
+        );
 
-        $status =
-            ucfirst(
-                (string) $versi['status']
-            );
+        $mulai = $versi['tanggal_mulai'] ?? '-';
 
-
-        $mulai =
-            $versi['tanggal_mulai'];
-
-
-        $selesai =
-            $versi['tanggal_selesai']
+        $selesai = $versi['tanggal_selesai']
             ?? 'tanpa batas';
-
 
         return sprintf(
             'Periode bertabrakan dengan versi %s (%s), periode %s s/d %s.',
-            $versi['kode_versi'],
+            $versi['kode_versi'] ?? '-',
             $status,
             $mulai,
             $selesai
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -950,82 +613,53 @@ class AturanDenda extends BaseController
     |--------------------------------------------------------------------------
     */
 
-    protected function normalizeRules(
-        array $rules
-    ): array {
-
+    protected function normalizeRules(array $rules): array
+    {
         $result = [];
 
+        foreach ($rules as $rule) {
+            if (! is_array($rule)) {
+                continue;
+            }
 
-        foreach (
-            $rules as $rule
-        ) {
-
-            $max =
-                $rule['max_nominal']
-                ?? null;
-
+            $max = $rule['max_nominal'] ?? null;
 
             $result[] = [
+                'nama_aturan' => trim(
+                    (string) ($rule['nama_aturan'] ?? '')
+                ),
 
-                'nama_aturan' =>
-                    trim(
-                        (string) (
-                            $rule[
-                                'nama_aturan'
-                            ] ?? ''
-                        )
-                    ),
+                'min_nominal' => (float) (
+                    $rule['min_nominal'] ?? 0
+                ),
 
-                'min_nominal' =>
-                    (float) (
-                        $rule[
-                            'min_nominal'
-                        ] ?? 0
-                    ),
-
-                'max_nominal' =>
+                'max_nominal' => (
                     $max === ''
                     || $max === null
-                        ? null
-                        : (float) $max,
+                )
+                    ? null
+                    : (float) $max,
 
-                'persentase_denda' =>
-                    (float) (
-                        $rule[
-                            'persentase_denda'
-                        ] ?? 0
-                    ),
+                'persentase_denda' => (float) (
+                    $rule['persentase_denda'] ?? 0
+                ),
 
-                'periode_hari' =>
-                    (int) (
-                        $rule[
-                            'periode_hari'
-                        ] ?? 0
-                    ),
+                'periode_hari' => (int) (
+                    $rule['periode_hari'] ?? 0
+                ),
 
-                'maksimal_denda_persen' =>
-                    (float) (
-                        $rule[
-                            'maksimal_denda_persen'
-                        ] ?? 0
-                    ),
+                'maksimal_denda_persen' => (float) (
+                    $rule['maksimal_denda_persen'] ?? 0
+                ),
 
-                'keterangan' =>
-                    trim(
-                        (string) (
-                            $rule[
-                                'keterangan'
-                            ] ?? ''
-                        )
-                    ),
+                'keterangan' => trim(
+                    (string) ($rule['keterangan'] ?? '')
+                ),
             ];
         }
 
-
         return $result;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1033,169 +667,94 @@ class AturanDenda extends BaseController
     |--------------------------------------------------------------------------
     */
 
-    protected function validateRules(
-        array $rules
-    ): ?string {
+    protected function validateRules(array $rules): ?string
+    {
+        foreach ($rules as $index => $rule) {
+            $number = $index + 1;
 
-        foreach (
-            $rules as $index => $rule
-        ) {
-
-            $number =
-                $index + 1;
-
-
-            if (
-                $rule['min_nominal'] <= 0
-            ) {
-
-                return
-                    "Rentang #{$number}: minimal nominal harus lebih dari 0.";
+            if ($rule['nama_aturan'] === '') {
+                return "Rentang #{$number}: nama aturan wajib diisi.";
             }
 
+            if ($rule['min_nominal'] <= 0) {
+                return "Rentang #{$number}: minimal nominal harus lebih dari 0.";
+            }
 
             if (
                 $rule['max_nominal'] !== null
-                && $rule['max_nominal']
-                    <= $rule['min_nominal']
+                && $rule['max_nominal'] <= $rule['min_nominal']
             ) {
-
-                return
-                    "Rentang #{$number}: maksimal nominal harus lebih besar dari minimal nominal.";
+                return "Rentang #{$number}: maksimal nominal harus lebih besar dari minimal nominal.";
             }
-
 
             if (
                 $rule['persentase_denda'] <= 0
                 || $rule['persentase_denda'] > 100
             ) {
-
-                return
-                    "Rentang #{$number}: persentase denda harus antara 0 dan 100%.";
+                return "Rentang #{$number}: persentase denda harus antara 0 dan 100%.";
             }
 
-
-            if (
-                $rule['periode_hari'] <= 0
-            ) {
-
-                return
-                    "Rentang #{$number}: periode denda harus lebih dari 0 hari.";
+            if ($rule['periode_hari'] <= 0) {
+                return "Rentang #{$number}: periode denda harus lebih dari 0 hari.";
             }
-
 
             if (
                 $rule['maksimal_denda_persen'] <= 0
                 || $rule['maksimal_denda_persen'] > 100
             ) {
-
-                return
-                    "Rentang #{$number}: maksimal denda harus antara 0 dan 100%.";
+                return "Rentang #{$number}: maksimal denda harus antara 0 dan 100%.";
             }
         }
-
 
         /*
-         * Cek overlap antar rentang dalam satu versi.
+         * Minimal satu rule harus tersedia.
          */
-
-        $count =
-            count($rules);
-
-
-        for (
-            $i = 0;
-            $i < $count;
-            $i++
-        ) {
-
-            for (
-                $j = $i + 1;
-                $j < $count;
-                $j++
-            ) {
-
-                if (
-                    $this->rangesOverlap(
-                        $rules[$i]['min_nominal'],
-                        $rules[$i]['max_nominal'],
-                        $rules[$j]['min_nominal'],
-                        $rules[$j]['max_nominal']
-                    )
-                ) {
-
-                    return sprintf(
-                        'Rentang #%d dan Rentang #%d saling bertabrakan.',
-                        $i + 1,
-                        $j + 1
-                    );
-                }
-            }
+        if (empty($rules)) {
+            return 'Minimal satu rentang aturan denda harus diisi.';
         }
 
+        /*
+         * Rules diurutkan berdasarkan minimal nominal
+         * sebelum pengecekan overlap.
+         */
+        usort(
+            $rules,
+            static function (array $a, array $b): int {
+                return $a['min_nominal'] <=> $b['min_nominal'];
+            }
+        );
+
+        $count = count($rules);
+
+        for ($i = 0; $i < $count - 1; $i++) {
+            $current = $rules[$i];
+            $next = $rules[$i + 1];
+
+            /*
+             * Jika current tidak memiliki batas atas,
+             * maka semua rule setelahnya pasti overlap.
+             */
+            if ($current['max_nominal'] === null) {
+                return sprintf(
+                    'Rentang #%d tidak boleh menjadi rentang terakhir jika masih ada rentang setelahnya.',
+                    $i + 1
+                );
+            }
+
+            if (
+                $current['max_nominal']
+                >= $next['min_nominal']
+            ) {
+                return sprintf(
+                    'Rentang #%d dan Rentang #%d saling bertabrakan.',
+                    $i + 1,
+                    $i + 2
+                );
+            }
+        }
 
         return null;
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Range Overlap
-    |--------------------------------------------------------------------------
-    */
-
-    protected function rangesOverlap(
-        float|int|string $minA,
-        float|int|string|null $maxA,
-        float|int|string $minB,
-        float|int|string|null $maxB
-    ): bool {
-
-        $minA =
-            (float) $minA;
-
-        $minB =
-            (float) $minB;
-
-
-        $maxA =
-            $maxA === null
-            || $maxA === ''
-                ? null
-                : (float) $maxA;
-
-
-        $maxB =
-            $maxB === null
-            || $maxB === ''
-                ? null
-                : (float) $maxB;
-
-
-        if (
-            $maxA === null
-        ) {
-
-            return
-                $maxB === null
-                || $maxB >= $minA;
-        }
-
-
-        if (
-            $maxB === null
-        ) {
-
-            return
-                $maxA >= $minB;
-        }
-
-
-        return
-            $minA <= $maxB
-            && $maxA >= $minB;
-    }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1205,45 +764,30 @@ class AturanDenda extends BaseController
 
     protected function generateVersionCode(): string
     {
-        $last =
-            $this->versiModel
-                ->orderBy(
-                    'id',
-                    'DESC'
-                )
-                ->first();
-
+        $last = $this->versiModel
+            ->withDeleted()
+            ->orderBy('id', 'DESC')
+            ->first();
 
         $number = 1;
 
-
-        if (
-            $last !== null
-        ) {
-
+        if ($last !== null) {
             preg_match(
                 '/(\d+)$/',
-                (string) $last['kode_versi'],
+                (string) ($last['kode_versi'] ?? ''),
                 $matches
             );
 
-
-            if (
-                ! empty($matches[1])
-            ) {
-
-                $number =
-                    ((int) $matches[1]) + 1;
+            if (! empty($matches[1])) {
+                $number = ((int) $matches[1]) + 1;
             }
         }
-
 
         return sprintf(
             'DENDA-V%03d',
             $number
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1254,31 +798,21 @@ class AturanDenda extends BaseController
     protected function canCreateVersionOnDate(
         string $tanggalMulai
     ): bool {
-
         /*
-         * Kalau belum ada versi sama sekali,
-         * versi pertama boleh dibuat.
+         * Versi pertama boleh dibuat kapan saja.
          */
-
         if (
             $this->versiModel
                 ->countAllResults() === 0
         ) {
-
             return true;
         }
 
+        $minimumDate = date(
+            'Y-m-d',
+            strtotime('+30 days')
+        );
 
-        $minimumDate =
-            date(
-                'Y-m-d',
-                strtotime(
-                    '+30 days'
-                )
-            );
-
-
-        return
-            $tanggalMulai >= $minimumDate;
+        return $tanggalMulai >= $minimumDate;
     }
 }

@@ -6,31 +6,17 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-/**
- * --------------------------------------------------------------------------
- * Create Customer Table
- * --------------------------------------------------------------------------
- *
- * Master data customer untuk Sistem Monitoring Piutang.
- */
 class CreateCustomerTable extends Migration
 {
     public function up(): void
     {
         $this->forge->addField([
-            // =====================================================
-            // Primary Key
-            // =====================================================
             'id' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-
-            // =====================================================
-            // Business Fields
-            // =====================================================
 
             'kode_customer' => [
                 'type'       => 'VARCHAR',
@@ -70,10 +56,6 @@ class CreateCustomerTable extends Migration
                 'comment'    => '1 = Aktif, 0 = Tidak Aktif',
             ],
 
-            // =====================================================
-            // Audit Trail
-            // =====================================================
-
             'created_by' => [
                 'type'       => 'INT',
                 'constraint' => 11,
@@ -95,10 +77,6 @@ class CreateCustomerTable extends Migration
                 'null'       => true,
             ],
 
-            // =====================================================
-            // Timestamp
-            // =====================================================
-
             'created_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
@@ -115,59 +93,59 @@ class CreateCustomerTable extends Migration
             ],
         ]);
 
-        // =====================================================
-        // Primary Key
-        // =====================================================
-
+        // Primary key
         $this->forge->addKey('id', true);
 
-        // =====================================================
+        // Unique
+        $this->forge->addUniqueKey(
+            'kode_customer',
+            'uq_customer_kode'
+        );
+
         // Index
-        // =====================================================
+        $this->forge->addKey(
+            'nama',
+            false,
+            false,
+            'idx_customer_nama'
+        );
 
-        $this->forge->addUniqueKey('kode_customer');
+        $this->forge->addKey(
+            'status',
+            false,
+            false,
+            'idx_customer_status'
+        );
 
-        $this->forge->addKey('nama');
-
-        $this->forge->addKey('status');
-
-        // no_hp tidak saya index dulu karena belum tentu sering
-        // dipakai untuk pencarian. Jika nanti diperlukan, kita
-        // bisa menambahkannya tanpa mengubah struktur tabel.
-
-        // =====================================================
-        // Foreign Key
-        // =====================================================
-
+        // Audit foreign keys
         $this->forge->addForeignKey(
             'created_by',
             'users',
             'id',
+            'SET NULL',
             'RESTRICT',
-            'CASCADE'
+            'fk_customer_created_by'
         );
 
         $this->forge->addForeignKey(
             'updated_by',
             'users',
             'id',
+            'SET NULL',
             'RESTRICT',
-            'CASCADE'
+            'fk_customer_updated_by'
         );
 
         $this->forge->addForeignKey(
             'deleted_by',
             'users',
             'id',
+            'SET NULL',
             'RESTRICT',
-            'CASCADE'
+            'fk_customer_deleted_by'
         );
 
-        // =====================================================
-        // Create Table
-        // =====================================================
-
-        $this->forge->createTable('customer');
+        $this->forge->createTable('customer', true);
     }
 
     public function down(): void

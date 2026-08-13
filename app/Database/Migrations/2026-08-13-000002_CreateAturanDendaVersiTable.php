@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
 class CreateAturanDendaVersiTable extends Migration
 {
-    public function up()
+    public function up(): void
     {
         $this->forge->addField([
             'id' => [
@@ -83,21 +85,76 @@ class CreateAturanDendaVersiTable extends Migration
             ],
         ]);
 
+        // Primary key
         $this->forge->addKey('id', true);
 
-        $this->forge->addUniqueKey('kode_versi');
+        // Unique
+        $this->forge->addUniqueKey(
+            'kode_versi',
+            'uq_aturan_denda_versi_kode'
+        );
 
-        $this->forge->addKey('tanggal_mulai');
+        // Index
+        $this->forge->addKey(
+            'tanggal_mulai',
+            false,
+            false,
+            'idx_aturan_denda_versi_mulai'
+        );
 
-        $this->forge->addKey('tanggal_selesai');
+        $this->forge->addKey(
+            'tanggal_selesai',
+            false,
+            false,
+            'idx_aturan_denda_versi_selesai'
+        );
 
-        $this->forge->addKey('status');
+        $this->forge->addKey(
+            'status',
+            false,
+            false,
+            'idx_aturan_denda_versi_status'
+        );
 
-        $this->forge->createTable('aturan_denda_versi');
+        // Audit foreign keys
+        $this->forge->addForeignKey(
+            'created_by',
+            'users',
+            'id',
+            'SET NULL',
+            'RESTRICT',
+            'fk_aturan_denda_versi_created_by'
+        );
+
+        $this->forge->addForeignKey(
+            'updated_by',
+            'users',
+            'id',
+            'SET NULL',
+            'RESTRICT',
+            'fk_aturan_denda_versi_updated_by'
+        );
+
+        $this->forge->addForeignKey(
+            'deleted_by',
+            'users',
+            'id',
+            'SET NULL',
+            'RESTRICT',
+            'fk_aturan_denda_versi_deleted_by'
+        );
+
+        $this->forge->createTable(
+            'aturan_denda_versi',
+            true
+        );
     }
 
-    public function down()
+    public function down(): void
     {
-        $this->forge->dropTable('aturan_denda_versi', true);
+        $this->forge->dropTable(
+            'aturan_denda_versi',
+            true
+        );
     }
 }
